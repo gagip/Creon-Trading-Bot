@@ -22,4 +22,4 @@ class AutoConnect():
         # 자동 로그인
         app = application.Application()
         app.start(data["creon"])
-        time.sleep(60)
+        time.sleep(180)

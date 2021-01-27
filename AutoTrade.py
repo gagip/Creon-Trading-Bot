@@ -1,4 +1,4 @@
-"""주식 알고리즘"""
+"""주식 트레이딩 자동화"""
 import os, sys, ctypes
 import win32com.client
 import pandas as pd
@@ -250,13 +250,17 @@ def sell_all():
 if __name__ == '__main__': 
     try:
         # 자동로그인
-        # autoConnect = AutoConnect()
-        # autoConnect.connect()
+        autoConnect = AutoConnect()
+        autoConnect.connect()
+
+        # TODO GUI를 사용하여 트레이딩에 사용할 변수를 정의
+        
+
 
         # 트레이딩에 사용할 변수 설정
-        symbol_list = ['A005930', 'A068760']                               # 삼성전자, 셀레니움제약
+        symbol_list = ['A003530', 'A049470', 'A016670']                               # 한화투자증권, SGA ,포비스티앤씨
         bought_list = []     # 매수 완료된 종목 리스트
-        target_buy_count = 1 # 매수할 종목 수
+        target_buy_count = 2 # 매수할 종목 수
         buy_percent = 0.5
 
         # 트레이딩
@@ -276,6 +280,7 @@ if __name__ == '__main__':
             LP(유동성 공급자) 활동 시간: 09:05 ~ 15:20
             자동매매 시간: 09:05 ~ 15:15 / 15:20(종료)
             """
+            # 시간 정의
             t_now = datetime.now()
             t_9 = t_now.replace(hour=9, minute=0, second=0, microsecond=0)
             t_start = t_now.replace(hour=9, minute=5, second=0, microsecond=0)
@@ -299,8 +304,20 @@ if __name__ == '__main__':
                         buy_etf(sym)
                         time.sleep(1)
 
-                # 30분에 종목과 수량을 반환
-                if t_now.minute == 30 and 0 <= t_now.second <= 5: 
+                # 30분마다 종목과 수량을 반환
+                if t_now.minute == 30 and 0 <= t_now.second <= 5:
+                    # 사고 싶은 주식의 현 가격 출력
+                    for sym in symbol_list:
+                        name = cpStock.GetHeaderValue(1)
+                        dbgout(f"현재 {name} 가격(현재가, 매수호가, 매도호가): {get_current_price(sym)}")
+                        target_price = get_target_price(sym)    # 매수 목표가
+                        ma5_price = get_movingaverage(sym, 5)   # 5일 이동평균가
+                        ma10_price = get_movingaverage(sym, 10) # 10일 이동평균가
+                        dbgout(f"{name} 목표가는 다음과 같습니다\n\
+                                매수 목표가: {target_price}\n\
+                                5일 이동평균가: {ma5_price}\n\
+                                10일 이동평균가: {ma10_price}")
+                    
                     get_stock_balance('ALL')
                     time.sleep(5)
 
